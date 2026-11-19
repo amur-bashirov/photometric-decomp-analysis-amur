@@ -12,6 +12,7 @@ import os
 
 def find_galaxies(root: Path, fit_type: str, bands: list[str]) -> list[Path]:
     """Find directories with at least one requested image/config pair."""
+    print(f"Searching for galaxies in {root} with fit type '{fit_type}' and bands {bands}", flush=True)
     galaxy_dirs = set()
     for image in root.rglob("image_?.fits"):
         band = image.stem[-1]
@@ -91,6 +92,10 @@ def submit(args: argparse.Namespace) -> None:
             f"No folders under {root} contain both image_<band>.fits and "
             f"{args.fit_type}_<band>.dat for bands {','.join(args.bands)}"
         )
+
+    print(f"Found {len(galaxies)} galaxies:")
+    for galaxy in galaxies:
+        print(f"  {galaxy.name}: {galaxy}")
 
     executor = submitit.AutoExecutor(folder=str(root / "slurm_logs" / "%j"))
     if args.max_parallel == -1:
