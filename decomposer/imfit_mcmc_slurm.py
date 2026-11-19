@@ -10,14 +10,38 @@ import submitit
 import os
 
 
+# def find_galaxies(root: Path, fit_type: str, bands: list[str]) -> list[Path]:
+#     """Find directories with at least one requested image/config pair."""
+#     print(f"Searching for galaxies in {root} with fit type '{fit_type}' and bands {bands}", flush=True)
+#     galaxy_dirs = set()
+#     for image in root.rglob("image_?.fits"):
+#         band = image.stem[-1]
+#         if band in bands and (image.parent / f"{fit_type}_{band}.dat").is_file():
+#             galaxy_dirs.add(image.parent.resolve())
+#     return sorted(galaxy_dirs)
+
+
 def find_galaxies(root: Path, fit_type: str, bands: list[str]) -> list[Path]:
-    """Find directories with at least one requested image/config pair."""
-    print(f"Searching for galaxies in {root} with fit type '{fit_type}' and bands {bands}", flush=True)
     galaxy_dirs = set()
-    for image in root.rglob("image_?.fits"):
-        band = image.stem[-1]
-        if band in bands and (image.parent / f"{fit_type}_{band}.dat").is_file():
-            galaxy_dirs.add(image.parent.resolve())
+
+    for band in bands:
+        image_dirs = {
+            p.parent.resolve() for p in root.rglob(f"image_{band}.fits")
+        }
+        config_dirs = {
+            p.parent.resolve() for p in root.rglob(f"{fit_type}_{band}.dat")
+        }
+        pair_dirs = image_dirs & config_dirs
+
+        print(
+            f"{band}: {len(image_dirs)} image folders, "
+            f"{len(config_dirs)} config folders, "
+            f"{len(pair_dirs)} complete pairs",
+            flush=True,
+        )
+        galaxy_dirs.update(pair_dirs)
+
+    print(f"Total folders with at least one complete pair: {len(galaxy_dirs)}", flush=True)
     return sorted(galaxy_dirs)
 
 
