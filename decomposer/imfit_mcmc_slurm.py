@@ -118,8 +118,6 @@ def submit(args: argparse.Namespace) -> None:
         )
 
     print(f"Found {len(galaxies)} galaxies:")
-    for galaxy in galaxies:
-        print(f"  {galaxy.name}: {galaxy}")
 
     executor = submitit.AutoExecutor(folder=str(root / "slurm_logs" / "%j"))
     if args.max_parallel == -1:
